@@ -1,7 +1,7 @@
 class GeminiApp {
     constructor() {
         this.tg = window.Telegram.WebApp;
-        this.backendUrl = 'https://your-project.amvera.io'; // ЗАМЕНИ после деплоя
+        this.backendUrl = 'oriongemini-gptplus304.amvera.io'; // ЗАМЕНИ после деплоя
         this.userId = this.tg.initDataUnsafe.user?.id;
         this.currentFile = null;
 
@@ -189,4 +189,5 @@ class GeminiApp {
 
 document.addEventListener('DOMContentLoaded', () => {
     new GeminiApp();
+
 });

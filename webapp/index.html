@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Assistant</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Gemini AI</h1>
+            <button id="resetBtn" class="btn-secondary">Очистить историю</button>
+        </header>
+
+        <div class="chat-container">
+            <div id="messages" class="messages"></div>
+        </div>
+
+        <div class="input-area">
+            <div class="file-upload">
+                <input type="file" id="fileInput" accept="image/*,.pdf,.txt" style="display: none;">
+                <button id="uploadBtn" class="btn-secondary">📎 Прикрепить файл</button>
+                <span id="fileName"></span>
+            </div>
+
+            <div class="text-input">
+                <textarea id="messageInput" placeholder="Введите ваш вопрос..."></textarea>
+                <button id="sendBtn" class="btn-primary">📤</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

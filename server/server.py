@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import base64
 import os
 import asyncio
 import aiohttp
@@ -8,7 +7,7 @@ import aiohttp
 app = Flask(__name__)
 CORS(app)
 
-# Простая in-memory база (для продакшена используйте Redis)
+# Простое хранилище в памяти
 user_sessions = {}
 
 
@@ -18,20 +17,7 @@ class GeminiClient:
 
     async def query_gemini(self, prompt: str, file_data: str = None,
                            mime_type: str = None, history: list = None) -> str:
-        """Адаптированная версия из вашего бота"""
-        system_instruction_text = (
-            "Отвечай всегда на русском языке, если вопрос не содержит другого указания. "
-            "Если есть прикрепленный файл, внимательно его проанализируй. "
-            "Если ответ содержит программный код, **обязательно форматируй его в блок с подсветкой синтаксиса**."
-        )
-
         contents = history if history else []
-
-        if not history:
-            contents.append({
-                "role": "user",
-                "parts": [{"text": system_instruction_text}]
-            })
 
         current_user_parts = []
 
@@ -57,36 +43,22 @@ class GeminiClient:
             }
         }
 
-        for attempt in range(3):
-            try:
-                async with aiohttp.ClientSession() as s:
-                    async with s.post(self.gas_url, json=payload, timeout=60) as r:
-                        if r.status >= 500:
-                            if attempt < 2:
-                                await asyncio.sleep(1)
-                                continue
-                            else:
-                                r.raise_for_status()
+        try:
+            async with aiohttp.ClientSession() as s:
+                async with s.post(self.gas_url, json=payload, timeout=60) as r:
+                    r.raise_for_status()
+                    data = await r.json()
 
-                        r.raise_for_status()
-                        data = await r.json()
+                    text = (
+                        data.get("candidates", [{}])[0]
+                        .get("content", {})
+                        .get("parts", [{}])[0]
+                        .get("text", "")
+                    )
+                    return text or "Нет текста в ответе."
 
-                        text = (
-                            data.get("candidates", [{}])[0]
-                            .get("content", {})
-                            .get("parts", [{}])[0]
-                            .get("text", "")
-                        )
-                        return text or data.get("error", "Нет текста в ответе.")
-
-            except Exception as e:
-                if attempt < 2:
-                    await asyncio.sleep(1)
-                    continue
-                else:
-                    return f"Ошибка: {e}"
-
-        return "Не удалось получить ответ."
+        except Exception as e:
+            return f"Ошибка: {e}"
 
 
 gemini_client = GeminiClient()
@@ -94,7 +66,6 @@ gemini_client = GeminiClient()
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    """Обработка текстовых сообщений"""
     data = request.json
     user_id = data.get('user_id')
     message = data.get('message')
@@ -103,8 +74,6 @@ def chat():
         return jsonify({'error': 'Missing user_id or message'}), 400
 
     history = user_sessions.get(user_id, [])
-
-    # Запускаем асинхронную функцию
     response = asyncio.run(gemini_client.query_gemini(message, history=history))
 
     # Обновляем историю
@@ -117,7 +86,6 @@ def chat():
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
-    """Обработка загрузки файлов"""
     try:
         data = request.json
         user_id = data.get('user_id')
@@ -142,7 +110,6 @@ def upload_file():
 
 @app.route('/api/reset', methods=['POST'])
 def reset_history():
-    """Сброс истории"""
     data = request.json
     user_id = data.get('user_id')
 
@@ -154,8 +121,12 @@ def reset_history():
 
 @app.route('/health', methods=['GET'])
 def health():
-    """Health check для Amvera"""
-    return jsonify({'status': 'ok'})
+    return jsonify({'status': 'ok', 'service': 'gemini-bot-api'})
+
+
+@app.route('/')
+def home():
+    return jsonify({'message': 'Gemini Bot API is running'})
 
 
 if __name__ == '__main__':

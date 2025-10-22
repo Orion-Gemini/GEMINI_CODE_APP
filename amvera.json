@@ -1,0 +1,26 @@
+{
+  "name": "gemini-telegram-bot",
+  "type": "worker",
+  "engine": "python",
+  "engineVersion": "3.11",
+
+  "build": {
+    "type": "pip",
+    "requirementsPath": "requirements.txt"
+  },
+
+  "deploy": {
+    "instances": 1,
+    "resources": {
+      "cpu": 1000,
+      "memory": 1024,
+      "disk": 5120
+    }
+  },
+
+  "environment": {
+    "TELEGRAM_TOKEN": "${TELEGRAM_TOKEN}",
+    "GAS_PROXY_URL": "${GAS_PROXY_URL}",
+    "WEBAPP_URL": "${WEBAPP_URL}"
+  }
+}

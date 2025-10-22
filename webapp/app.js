@@ -1,7 +1,7 @@
 class GeminiApp {
     constructor() {
         this.tg = window.Telegram.WebApp;
-        this.backendUrl = 'https://your-server.com/api'; // Ваш сервер
+        this.backendUrl = 'https://your-project.amvera.io'; // ЗАМЕНИ после деплоя
         this.userId = this.tg.initDataUnsafe.user?.id;
         this.currentFile = null;
 
@@ -66,7 +66,7 @@ class GeminiApp {
     }
 
     async sendTextMessage(message) {
-        const response = await fetch(`${this.backendUrl}/chat`, {
+        const response = await fetch(`${this.backendUrl}/api/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -87,7 +87,7 @@ class GeminiApp {
             reader.onload = async (e) => {
                 try {
                     const base64 = e.target.result.split(',')[1];
-                    const response = await fetch(`${this.backendUrl}/upload`, {
+                    const response = await fetch(`${this.backendUrl}/api/upload`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -114,7 +114,6 @@ class GeminiApp {
         const file = event.target.files[0];
         if (!file) return;
 
-        // Проверяем тип файла
         const validTypes = ['image/jpeg', 'image/png', 'application/pdf', 'text/plain'];
         if (!validTypes.includes(file.type)) {
             alert('Поддерживаются только JPG, PNG, PDF и TXT файлы');
@@ -149,7 +148,6 @@ class GeminiApp {
     }
 
     formatMessage(text) {
-        // Простое форматирование Markdown
         return text
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
@@ -160,7 +158,7 @@ class GeminiApp {
 
     async resetHistory() {
         try {
-            await fetch(`${this.backendUrl}/reset`, {
+            await fetch(`${this.backendUrl}/api/reset`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user_id: this.userId })
@@ -182,7 +180,6 @@ class GeminiApp {
     }
 
     loadHistory() {
-        // Можно добавить загрузку истории при старте
         this.addMessage(
             '👋 Привет! Я Gemini AI помощник. Задавайте вопросы или загружайте файлы для анализа.',
             'bot'
@@ -190,7 +187,6 @@ class GeminiApp {
     }
 }
 
-// Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', () => {
     new GeminiApp();
 });

@@ -17,7 +17,7 @@ from telegram.ext import (
 # === КОНСТАНТЫ ===
 MAX_HISTORY_MESSAGES = 4
 MAX_RETRIES = 3
-WEBAPP_URL = os.getenv("WEBAPP_URL", "https://your-domain.com")
+WEBAPP_URL = os.getenv("WEBAPP_URL", "https://neon-fox-1a64b2.netlify.app/")
 # ===============================
 
 # === Настройки окружения ===
